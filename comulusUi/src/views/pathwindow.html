@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comulus UI</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <style>
+    .jumbotron {
+      padding-top: 3rem;
+      padding-bottom: 3rem;
+      margin-bottom: 0;
+      background-color: #fff;
+    }
+
+    @media (min-width: 768px) {
+      .jumbotron {
+        padding-top: 6rem;
+        padding-bottom: 6rem;
+      }
+    }
+
+    .jumbotron p:last-child {
+      margin-bottom: 0;
+    }
+
+    .jumbotron h1 {
+      font-weight: 300;
+    }
+
+    .jumbotron .container {
+      max-width: 40rem;
+    }
+
+    footer {
+      padding-top: 3rem;
+      padding-bottom: 3rem;
+    }
+
+    footer p {
+      margin-bottom: .25rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="app">
+    <v-app>
+      <v-content>
+        <v-container>
+          <template>
+            <v-banner single-line @click:icon="alert">
+              <v-icon
+                slot="icon"
+                color="primary"
+                size="36"
+              >
+                mdi-cloud
+              </v-icon>
+             Conect to salesforce Devhub
+          
+              <template v-slot:actions>
+                <v-btn
+                  color="primary"
+                  text
+                >
+                  Connect
+                </v-btn>
+              </template>
+            </v-banner>
+          </template>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      methods: {
+        alert () {
+          alert('Hello, World!')
+        },
+      },
+    })
+  
+    const { ipcRenderer } = require('electron');
+    function logdebhuv() {
+      ipcRenderer.send('loging:devhub', 'hi');
+    }
+  
+    ipcRenderer.on('devhubloged', function (event, loged) {
+      var remote = require('remote');
+      remote.getCurrentWindow().reload();
+    });
+  
+  </script>
+</body>
+
+</html>

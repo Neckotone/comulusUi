@@ -54,23 +54,25 @@
           "config": {}
         }
       ],
-     "publishers":[
+      "publishers": [
         {
-        "name": "@electron-forge/publisher-github",
-        "config": {
-          "repository": {
-            "owner": "Neckotone",
-            "name": "comulusUi"
-          },
-          "prerelease": true,
-          "authToken":"ee8ad55e660a5a3970d1993905f93f7e7327e43f"
+          "name": "@electron-forge/publisher-github",
+          "config": {
+            "repository": {
+              "owner": "Neckotone",
+              "name": "comulusUi"
+            },
+            "prerelease": true,
+            "authToken": "ee8ad55e660a5a3970d1993905f93f7e7327e43f"
+          }
         }
-      }
-     ]
+      ]
     }
   },
   "dependencies": {
     "@electron-forge/publisher-github": "^6.0.0-beta.50",
+    "ejs-electron": "^2.0.3",
+    "electron-reload": "^1.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "update-electron-app": "^1.5.0"
   },
