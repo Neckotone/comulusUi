@@ -1,6 +1,9 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-require('update-electron-app')()
+require('update-electron-app')({
+  repo: 'Neckotone/https://github.com/Neckotone/comulusUi/tree/master/comulusUi',
+  updateInterval: '1 hour'
+})
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
