@@ -11,9 +11,21 @@
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Neckotone/comulusUi/tree/master/comulusUi"
+  },
+  "keywords": [
+    "Electron",
+    "ComulusCI",
+    "ComulusCI UI",
+    "NodeJS",
+    "React",
+    "Salesforce",
+    "DevOps"
+  ],
   "author": {
-    "name": "Juan de Dios Hdz D",
+    "name": "Juan de Dios Hernandez Davoila",
     "email": "juand_10193@hotmail.com"
   },
   "license": "MIT",
@@ -41,11 +53,24 @@
           "name": "@electron-forge/maker-rpm",
           "config": {}
         }
+      ],
+      "publishers": [
+        {
+          "name": "@electron-forge/publisher-github",
+          "config": {
+            "repository": {
+              "owner": "Neckotone",
+              "name": "comulusUi"
+            },
+            "prerelease": true
+          }
+        }
       ]
     }
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "update-electron-app": "^1.5.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.50",
