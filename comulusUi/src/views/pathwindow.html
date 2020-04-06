@@ -9,42 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-  <style>
-    .jumbotron {
-      padding-top: 3rem;
-      padding-bottom: 3rem;
-      margin-bottom: 0;
-      background-color: #fff;
-    }
 
-    @media (min-width: 768px) {
-      .jumbotron {
-        padding-top: 6rem;
-        padding-bottom: 6rem;
-      }
-    }
-
-    .jumbotron p:last-child {
-      margin-bottom: 0;
-    }
-
-    .jumbotron h1 {
-      font-weight: 300;
-    }
-
-    .jumbotron .container {
-      max-width: 40rem;
-    }
-
-    footer {
-      padding-top: 3rem;
-      padding-bottom: 3rem;
-    }
-
-    footer p {
-      margin-bottom: .25rem;
-    }
-  </style>
 </head>
 
 <body>
@@ -54,21 +19,21 @@
       <v-content>
         <v-container>
           <template>
-            <v-banner single-line @click:icon="alert">
-              <v-icon
-                slot="icon"
-                color="primary"
-                size="36"
-              >
+            <v-banner single-line @click:icon="logdebhuv">
+              <v-icon slot="icon" color="primary" size="36">
                 mdi-cloud
               </v-icon>
-             Conect to salesforce Devhub
-          
+              Conect to salesforce Devhub
+              
+              <v-form ref="form"  v-model="validdevhub":lazy-validation="lazy">
+                <v-text-field label="Devhub Alias" v-model="devhubAlias" :rules="devhubrules" hide-details="auto">
+                </v-text-field>
+              </v-form>
               <template v-slot:actions>
-                <v-btn
-                  color="primary"
-                  text
-                >
+                <v-btn color="primary" text v-if="logedtoDevhub">
+                  Connected
+                </v-btn>
+                <v-btn color="primary" v-on:click="logdebhuv" text v-else>
                   Connect
                 </v-btn>
               </template>
@@ -82,26 +47,46 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <script>
-    new Vue({
+    const { ipcRenderer } = require('electron');
+    var app = new Vue({
       el: '#app',
       vuetify: new Vuetify(),
+      data: {
+        devhub: false,
+        devhubrules: [
+          value => !!value || 'Required.',
+          value => (value && value.length >= 3) || 'Min 3 characters',
+        ],
+        devhubAlias: null,
+        validdevhub: true,
+        lazy:false
+      },
       methods: {
-        alert () {
-          alert('Hello, World!')
+        logdebhuv() {
+          
+          this.$refs.form.validate();
+          if(this.validdevhub ===true){
+            console.log(this.devhubAlias)
+            ipcRenderer.send('loging:devhub', {alias: this.devhubAlias});
+          }else{
+            console.log('hay errores')
+            console.log(this.devhubAlias)
+          }
+          
         },
       },
+      computed: {
+        logedtoDevhub: function () {
+          return this.devhub
+        }
+      },
     })
-  
-    const { ipcRenderer } = require('electron');
-    function logdebhuv() {
-      ipcRenderer.send('loging:devhub', 'hi');
-    }
-  
+
+
     ipcRenderer.on('devhubloged', function (event, loged) {
-      var remote = require('remote');
-      remote.getCurrentWindow().reload();
+      app.devhub = true
     });
-  
+
   </script>
 </body>
 

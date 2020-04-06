@@ -1,6 +1,8 @@
 const { app, BrowserWindow, Menu, ipcMain, webContents } = require("electron");
 const path = require("path");
 const { exec } = require("child_process");
+let moment  = require('moment')
+let {transactions} =require('./controllers/dbtransactions')
 
 require("update-electron-app")({
   repo:
@@ -52,7 +54,8 @@ ipcMain.on('new-path', (e, data)=>{
 })
 
 ipcMain.on("loging:devhub", (e, data) => {
-   exec("sfdx force:auth:web:login -a CCIDevHub", (error, stdout, stderr) => {
+  console.log(data)
+   exec(`sfdx force:auth:web:login -a ${data.alias}`, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
       return;
@@ -60,8 +63,9 @@ ipcMain.on("loging:devhub", (e, data) => {
     console.log(`stdout: ${stdout}`);
     console.error(`stderr: ${stderr}`);
      let ventanas = webContents.getAllWebContents()
+     let creationdate =  moment().format('MMMM Do YYYY, h:mm:ss a')
+     transactions.devhub.create(data.alias, true,  creationdate)
      windows.forEach(wind => {
-      ejse.data('loggedDevhub', true)
        wind.webContents.send('devhubloged', true)
      });
   });
