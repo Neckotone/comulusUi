@@ -6,9 +6,8 @@ let { transactions } = require('./controllers/dbtransactions')
 let devhubId = null;
 
 require("update-electron-app")({
-  repo:
-    "Neckotone/https://github.com/Neckotone/comulusUi/tree/master/comulusUi",
-  updateInterval: "1 hour",
+  updateInterval: "5 minutes",
+  notifyUser:true
 });
 
 let windows = [];
