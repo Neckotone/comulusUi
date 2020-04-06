@@ -1,8 +1,9 @@
 const { app, BrowserWindow, Menu, ipcMain, webContents } = require("electron");
 const path = require("path");
-const { exec } = require("child_process");
-let moment  = require('moment')
-let {transactions} =require('./controllers/dbtransactions')
+const { exec, spawn } = require("child_process");
+let moment = require('moment')
+let { transactions } = require('./controllers/dbtransactions')
+let devhubId = null;
 
 require("update-electron-app")({
   repo:
@@ -10,7 +11,7 @@ require("update-electron-app")({
   updateInterval: "1 hour",
 });
 
-let windows =[];
+let windows = [];
 
 let newWindow;
 
@@ -20,7 +21,7 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV == "production") {
   require("electron-reload")(__dirname, {
     electron: path.join(__dirname, "../node_modules", ".bin", "electron"),
   });
@@ -49,28 +50,70 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 };
 
-ipcMain.on('new-path', (e, data)=>{
+ipcMain.on('new-path', (e, data) => {
   createNewWindow(1200, 800, 'Follow a New Path', '/views/pathwindow.html');
 })
 
 ipcMain.on("loging:devhub", (e, data) => {
   console.log(data)
-   exec(`sfdx force:auth:web:login -a ${data.alias}`, (error, stdout, stderr) => {
+  exec(`sfdx force:auth:web:login -a ${data.alias}`, async(error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
       return;
     }
     console.log(`stdout: ${stdout}`);
     console.error(`stderr: ${stderr}`);
-     let ventanas = webContents.getAllWebContents()
-     let creationdate =  moment().format('MMMM Do YYYY, h:mm:ss a')
-     transactions.devhub.create(data.alias, true,  creationdate)
-     windows.forEach(wind => {
-       wind.webContents.send('devhubloged', true)
-     });
+    let ventanas = webContents.getAllWebContents()
+    let creationdate = moment().format('MMMM Do YYYY, h:mm:ss a')
+    let devhub =await transactions.devhub.create(data.alias, true, creationdate)
+    devhubId = devhub.devhubId;
+    windows.forEach(wind => {
+      wind.webContents.send('devhubloged', true)
+    });
   });
-  
+
 });
+
+ipcMain.on("loging:github", (e, datas) => {
+  console.log(datas)
+  let github = spawn("cci service connect github",{shell: process.platform == 'win32'});
+  github.stdout.on("data", async data => {
+    console.log('los datos')
+    console.log(`stdout: ${data}`);
+    if(data.toString().trim() ==='Username:'){
+      console.log('entrando a data')
+      github.stdin.write(datas.user + '\n')
+    }else if(data.toString().trim() ==='Password:'){
+      github.stdin.write(`${datas.password}\n`);
+    }else if(data.toString().trim()==='Email:'){
+      github.stdin.write(`${datas.email}\n`);
+      github.stdin.end();
+    }else if(data.toString().trim()==='github is now configured for all CumulusCI projects.'){
+      let gitacc= await  transactions.githubAccount.create({
+          gitUser: datas.user,
+          gitEmail: datas.email
+        })
+
+        transactions.connection.create({
+          githubId: gitacc.githubAccountID,
+          devhubId: devhubId
+        })
+    }
+  });
+
+  function writeUser(user){
+    github.stdin.write(user +'\n');
+  }
+
+  github.stderr.on("data", data => {
+    console.log(`stderr: ${data}`);
+});
+
+github.on('error', (error) => {
+  console.log(`error: ${error.message}`);
+});
+
+})
 
 const templateMenu = [
   {

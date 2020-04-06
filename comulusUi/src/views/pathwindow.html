@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comulus UI</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.materialdesignicons.com/5.0.45/css/materialdesignicons.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 
@@ -24,8 +24,8 @@
                 mdi-cloud
               </v-icon>
               Conect to salesforce Devhub
-              
-              <v-form ref="form"  v-model="validdevhub":lazy-validation="lazy">
+
+              <v-form ref="form" v-model="validdevhub" :lazy-validation="lazy">
                 <v-text-field label="Devhub Alias" v-model="devhubAlias" :rules="devhubrules" hide-details="auto">
                 </v-text-field>
               </v-form>
@@ -34,6 +34,41 @@
                   Connected
                 </v-btn>
                 <v-btn color="primary" v-on:click="logdebhuv" text v-else>
+                  Connect
+                </v-btn>
+              </template>
+            </v-banner>
+          </template>
+          <template>
+            <v-banner single-line @click:icon="loginGithub">
+              <v-icon slot="icon" color="primary" size="36">
+                mdi-github
+              </v-icon>
+              Service Connect Github
+
+              <v-form ref="form2" v-model="githubConf.validgithub" :lazy-validation="githubConf.lazy">
+               <v-row>
+                 <v-col cols="4">
+                <v-text-field label="Gihub User Name" v-model="githubConf.githubUser" :rules="[githubConf.rules.required]" hide-details="auto">
+                </v-text-field>
+              </v-col>
+              <v-col cols="4">
+                <v-text-field label="Gihub Email" v-model="githubConf.githubmail" :rules="[githubConf.rules.required]" hide-details="auto">
+                </v-text-field>
+              </v-col>
+              <v-col cols="4">
+                <v-text-field v-model="githubConf.gitHubpassword" :append-icon="githubConf.show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                  :type="githubConf.show1 ? 'text' : 'password'" name="input-10-1"
+                  label="Github Password" hint="Github Password" :rules="[githubConf.rules.required]" counter @click:append="githubConf.show1 = !githubConf.show1">
+                </v-text-field>
+              </v-col>
+              </v-row>
+              </v-form>
+              <template v-slot:actions>
+                <v-btn color="primary" text v-if="logedtoGithub">
+                  Connected
+                </v-btn>
+                <v-btn color="primary" v-on:click="loginGithub" text v-else>
                   Connect
                 </v-btn>
               </template>
@@ -59,31 +94,57 @@
         ],
         devhubAlias: null,
         validdevhub: true,
-        lazy:false
+        lazy: false,
+        githubConf:{
+          validgithub: true,
+          lazy: false,
+          githubUser: '',
+          gitHubpassword: '',
+          githubmail:'',
+          logedgithub: false,
+          show1:  false,
+          rules:{
+            required: value => !!value || 'Required.',
+          }
+        }
       },
       methods: {
         logdebhuv() {
-          
+
           this.$refs.form.validate();
-          if(this.validdevhub ===true){
+          if (this.validdevhub === true) {
             console.log(this.devhubAlias)
-            ipcRenderer.send('loging:devhub', {alias: this.devhubAlias});
-          }else{
+            ipcRenderer.send('loging:devhub', { alias: this.devhubAlias });
+          } else {
             console.log('hay errores')
             console.log(this.devhubAlias)
           }
-          
+
         },
+
+        loginGithub(){
+          this.$refs.form2.validate();
+          if (this.githubConf.validgithub === true) {
+            console.log(this.githubConf.githubUser)
+            ipcRenderer.send('loging:github', { user: this.githubConf.githubUser, password: this.githubConf.gitHubpassword, email:this.githubConf.githubmail});
+          }else{
+            console.log('Credenciales de github erroneas')
+          }
+        }
       },
       computed: {
         logedtoDevhub: function () {
           return this.devhub
+        },
+        logedtoGithub: function(){
+          return this.githubConf.logedgithub;
         }
       },
     })
 
 
     ipcRenderer.on('devhubloged', function (event, loged) {
+      console.log('el debhub esta true')
       app.devhub = true
     });
 
